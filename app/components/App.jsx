@@ -1,66 +1,30 @@
-import uuid from 'node-uuid';
-import React from 'react';
+import AltContainer      from 'alt-container';
+import React             from 'react';
+import Lanes             from './Lanes.jsx';
+import LaneActions       from '../actions/LaneActions';
+import LaneStore         from '../stores/LaneStore';
+import {DragDropContext} from 'react-dnd';
+import HTML5Backend      from 'react-dnd-html5-backend';
 
-import Notes from './Notes.jsx';
-
+@DragDropContext(HTML5Backend)
 export default class App extends React.Component {
-	constructor(props) {
-		super(props);
-
-		this.state = {
-			notes: [
-				{
-	      	id: uuid.v4(),
-	      	task: 'Learn Webpack'
-	      },
-	      {
-	      	id: uuid.v4(),
-	      	task: 'Learn React'
-	      },
-	      {
-	      	id: uuid.v4(),
-	      	task: 'Do laundry'
-	      }
-			]
-		};
-	}
-
 	render() {
-    
-    const notes = this.state.notes;
-
-    //return <Note />;
-
     return (
     	<div>
-    	  <button onClick={this.addNote}>+</button>
-    	  <Notes notes={notes} />
+    	  <button className="add-lane" onClick={this.addLane}>+</button>
+        <AltContainer
+          stores={[LaneStore]}
+          inject={{
+            lanes: () => LaneStore.getState().lanes || []
+          }}
+        >  
+    	    <Lanes />
+        </AltContainer>
     	</div>
     );
 	}
-
-  addNote = () => {
-    this.setState({
-      notes: this.state.notes.concat([{
-      	id: uuid.v4(),
-      	task: 'New task'
-      }])
-    });
-  };
-
-  editNote = (id, task) => {
-  	if(!task.trim()) {
-  		return;
-  	}
-    
-    const notes = this.state.notes.map(note => {
-      if(note.id === id && task) {
-      	note.task = task;
-      }
-
-      return note;
-    });
-
-    this.setState({notes});
-  };
+  
+  addLane() {
+    LaneActions.create({name: 'New lane'});
+  }
 }
